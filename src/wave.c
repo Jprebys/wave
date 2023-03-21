@@ -172,17 +172,25 @@ generate_patterns(const CellGrid *const grid, const unsigned int max_patterns,
             } else {
                 continue;
             }
-
+            printf("og values\n");
+            for (size_t f = 0; f < pattern_size * pattern_size; ++f) {
+                printf("%u ", new_values[f]);
+            }
+            putchar('\n');
             // Add all symmetries to list
             for (size_t k = 0; k < N_SYMMETRIES - 1; ++k) {
                 uint32_t rotated_values[pattern_size * pattern_size];
-                for (size_t x1 = 0, x2 = pattern_size - 1; x1 < pattern_size; ++x1, --x2) {
-                    for (size_t y = 0; y < pattern_size; ++y) {
+                for (size_t y = 0; y < pattern_size; ++y) {
+                    for (size_t x1 = 0, x2 = pattern_size - 1; x1 < pattern_size; ++x1, --x2) {
                         rotated_values[x2 * pattern_size + y] = new.values[y * pattern_size + x1];
                     }
                 }
                 printf("new values %zu\n", k);
-                new.values = rotated_values;
+                for (size_t f = 0; f < pattern_size * pattern_size; ++f) {
+                    printf("%u ", rotated_values[f]);
+                }
+                putchar('\n');
+                memcpy(new.values, rotated_values, sizeof(rotated_values));
                 if (!pattern_in_list(&new, patterns, pattern_count, pattern_size)) {
                     pattern_copy(&patterns[pattern_count++], &new, pattern_size);
                 }
@@ -315,7 +323,6 @@ bool run_wfc_algo(const CellGrid *grid, const unsigned int pattern_size, const u
         
         putchar('\n');
     }
-    exit(0);
 
 
     size_t output_grid_width = output_width - (pattern_size - 1);
@@ -548,7 +555,7 @@ cleanup:
 
 
 #define X_EMOJI "\u274C\uFE0F"
-#define CHECK_EMOJI "\u2714\uFE0F"
+#define CHECK_EMOJI "\u2705\uFE0F"
 
 
 void test_fail(const char *func_name, const int n)
@@ -641,38 +648,56 @@ int main(void)
 
     }
 
-    uint32_t grid_cells[] = {1, 2, 3,
-                        1, 3, 2};
-    CellGrid grid = { .cells = grid_cells, .rows = 2, .cols = 3 };
+
     {
+        char test_name[] = "generate_patterns";
+        printf("Testing %s...\n", test_name);
+
+        uint32_t grid_cells[] = {1, 2,
+                                 1, 3};
+        CellGrid grid = { .cells = grid_cells, .rows = 2, .cols = 2 };
+
+        Pattern *patterns;
+        int n_patterns = generate_patterns(&grid, 4, 2, &patterns);
+
+        if (n_patterns != 4)
+            test_fail(test_name, 1);
+
+        // Pattern p0 = patterns[0];
+        // if (p0.values[0] != 1 || p0.values[1] != 2 || p0.values[2] != 1 || p0.values[3] != 3)
+        //     test_fail(test_name, 1);
+        
+        // Pattern p1 = patterns[1];
+        // if (p1.values[0] != 2 || p1.values[1] != 3 || p1.values[2] != 1 || p1.values[3] != 1)
+        //     test_fail(test_name, 2);
 
 
+        printf(CHECK_EMOJI " %s tests succeeded!\n", test_name);
     }
 
 
 
 
-    return 0;
 
 
     srand(time(NULL));
     printf("\n\nRunning wave...\n");
     uint32_t cells[] = {
-// 4, 3, 1, 0, 3, 0, 3, 1, 0, 2, 
-// 4, 3, 0, 4, 1, 3, 1, 0, 1, 4, 
-// 4, 4, 3, 3, 4, 3, 2, 3, 0, 2, 
-// 2, 0, 3, 1, 4, 4, 0, 1, 0, 2, 
-// 3, 2, 3, 3, 1, 3, 4, 3, 2, 3, 
-// 1, 1, 4, 2, 3, 1, 4, 2, 2, 2, 
-// 1, 4, 3, 1, 2, 1, 0, 2, 1, 3, 
-// 2, 4, 2, 1, 0, 2, 0, 2, 3, 0, 
-// 4, 0, 3, 4, 0, 1, 1, 3, 4, 2, 
-// 2, 2, 4, 0, 4, 0, 1, 0, 3, 4,
-1, 0, 1,
-0, 1, 2,
-1, 0, 1
+4, 3, 1, 0, 3, 0, 3, 1, 0, 2, 
+4, 3, 0, 4, 1, 3, 1, 0, 1, 4, 
+4, 4, 3, 3, 4, 3, 2, 3, 0, 2, 
+2, 0, 3, 1, 4, 4, 0, 1, 0, 2, 
+3, 2, 3, 3, 1, 3, 4, 3, 2, 3, 
+1, 1, 4, 2, 3, 1, 4, 2, 2, 2, 
+1, 4, 3, 1, 2, 1, 0, 2, 1, 3, 
+2, 4, 2, 1, 0, 2, 0, 2, 3, 0, 
+4, 0, 3, 4, 0, 1, 1, 3, 4, 2, 
+2, 2, 4, 0, 4, 0, 1, 0, 3, 4,
+// 1, 0, 1,
+// 0, 1, 2,
+// 1, 0, 1
     };
-    int rows = 3, cols = 3, p_size = 2;
+    int rows = 10, cols = 10, p_size = 2;
     CellGrid cell_grid = { .cells = cells, .rows = rows, .cols = cols, .changed = false };
     run_wfc_algo(&cell_grid, p_size, 8, 10);
 
