@@ -292,7 +292,7 @@ rand_range(const int min_n, const int max_n)
 }
 
 
-bool run_wfc_algo(const CellGrid *grid, const unsigned int pattern_size, const unsigned int output_width, const unsigned int output_height)
+uint32_t *run_wfc_algo(const CellGrid *grid, const unsigned int pattern_size, const unsigned int output_width, const unsigned int output_height)
 {
     assert(false == 0 && "Warning: false does not equal 0 on this platform");
 
@@ -302,7 +302,7 @@ bool run_wfc_algo(const CellGrid *grid, const unsigned int pattern_size, const u
                           N_SYMMETRIES;
 
     size_t n_patterns = generate_patterns(grid, max_patterns, pattern_size, &patterns);
-    uint32_t result[output_width][output_height];
+    uint32_t *result = malloc(output_width * output_height * sizeof result[0]);
 
 
     int n_rules = n_patterns * N_DIRECTIONS;
@@ -506,7 +506,7 @@ bool run_wfc_algo(const CellGrid *grid, const unsigned int pattern_size, const u
                 {
                     for (size_t y = 0; y < pattern_size; ++y)
                     {
-                        result[i + x][j + y] = pattern.values[y * pattern_size + x];
+                        result[(i + x) + output_grid_width *(j + y)] = pattern.values[y * pattern_size + x];
                     }
                 }
             }
@@ -514,19 +514,19 @@ bool run_wfc_algo(const CellGrid *grid, const unsigned int pattern_size, const u
             {
                 for (size_t y = 0; y < pattern_size; ++y)
                     {
-                        result[i][j + y] = pattern.values[y * pattern_size];
+                        result[(i) + output_grid_width *(j + y)] = pattern.values[y * pattern_size];
                     }
             }
             else if (i == output_grid_width - 1)
             {
                 for (size_t x = 0; x < pattern_size; ++x)
                     {
-                        result[i + x][j] = pattern.values[x];
+                        result[(i + x) + output_grid_width *(j)] = pattern.values[x];
                     }
             }
             else
             {
-                result[i][j] = pattern.values[0];
+                result[(i) + output_grid_width *(j)] = pattern.values[0];
             }
 
         }
@@ -537,7 +537,7 @@ bool run_wfc_algo(const CellGrid *grid, const unsigned int pattern_size, const u
         putchar('\n');
         for (size_t j = 0; j < output_height; ++j)
         {
-            printf("%02u ", result[i][j]);
+            printf("%02u ", result[(i) + output_grid_width *(j)]);
 
         }
     }
@@ -552,7 +552,7 @@ cleanup:
         free(patterns[i].values);
 
     free(patterns);
-    return true;
+    return result;
 }
 
 

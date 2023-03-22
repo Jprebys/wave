@@ -22,7 +22,7 @@ HEADERS = $(wildcard $(SRC_DIR)/*.h)
 $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
 
-test: uninstall clean test_
+test: clean test_
 test_: CFLAGS += -D_UNIT_TEST 
 test_: $(TARGET)
 	./$(TARGET)
