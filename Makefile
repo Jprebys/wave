@@ -27,6 +27,7 @@ HEADERS = $(wildcard $(SRC_DIR)/*.h)
 $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
 
+test: CFLAGS += -D_UNIT_TEST 
 test: $(TARGET)
 	./$(TARGET)
 
