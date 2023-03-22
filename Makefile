@@ -7,14 +7,9 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c11
 LIBS = -lm
 
-.PHONY: default all clean debug test install uninstall
+.PHONY: default clean test install uninstall
 
 default: test
-all: default
-
-debug: CFLAGS += -g
-debug: default
-
 
 OBJECTS = $(patsubst %.c, %.o, $(wildcard $(SRC_DIR)/*.c))
 HEADERS = $(wildcard $(SRC_DIR)/*.h)
@@ -27,8 +22,9 @@ HEADERS = $(wildcard $(SRC_DIR)/*.h)
 $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
 
-test: CFLAGS += -D_UNIT_TEST 
-test: $(TARGET)
+test: uninstall clean test_
+test_: CFLAGS += -D_UNIT_TEST 
+test_: $(TARGET)
 	./$(TARGET)
 
 clean:
@@ -36,8 +32,13 @@ clean:
 	-rm -f $(TARGET)
 	-rm -f *.ppm
 
-install: all
-	cp $(TARGET) /usr/local/lib/libwave.a
+install: clean install_
+install_: CFLAGS += -O3
+install_: src/wave.o
+	ar rcs $(LIB_NAME) src/wave.o
+	sudo cp $(SRC_DIR)/wave.h /usr/local/include/wave.h
+	sudo mv $(LIB_NAME) $(LIB_DIR)/
 	
 uninstall:
-	rm -f /usr/local/bin/$(TARGET)
+	sudo rm -f /usr/local/lib/$(LIB_NAME)
+	sudo rm -f /usr/local/include/wave.h
