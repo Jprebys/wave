@@ -29,6 +29,9 @@ int main(void)
     uint32_t values2d_3[] = {1, 2,
                              0, 0};
     Pattern pattern2d_3 = { .values = values2d_3 };
+    uint32_t values2d_4[] = {1, 2,
+                             0, 0};
+    Pattern pattern2d_4 = { .values = values2d_4 };    
     uint32_t values3d_1[] = {3, 2, 2,
                              1, 2, 2,
                              1, 1, 0};
@@ -41,7 +44,10 @@ int main(void)
                              0, 0, 1,
                              3, 2, 2};
     Pattern pattern3d_3 = { .values = values3d_3 };
-
+    uint32_t values3d_4[] = {0, 0, 1,
+                             3, 2, 2,
+                             5, 9, 3};
+    Pattern pattern3d_4 = { .values = values3d_4 };
 
     {    
         printf("Testing pattern_equals...\n");
@@ -99,7 +105,6 @@ int main(void)
 
     }
 
-
     {
         char test_name[] = "generate_patterns";
         printf("Testing %s...\n", test_name);
@@ -124,6 +129,20 @@ int main(void)
 
 
         printf(CHECK_EMOJI " %s tests succeeded!\n", test_name);
+    }
+
+    {
+        printf("Testing check_vertical_match...\n");
+        if (!check_vertical_match(values2d_1, values2d_3, 2)) 
+            test_fail("check_vertical_match", 1);
+        if (!check_vertical_match(values3d_3, values3d_4, 3))
+            test_fail("check_vertical_match", 2);
+        if (check_vertical_match(values2d_1, values2d_2, 2)) 
+            test_fail("check_vertical_match", 3);
+        if (check_vertical_match(values3d_1, values3d_2, 3)) 
+            test_fail("check_vertical_match", 4);
+
+        printf(CHECK_EMOJI " check_vertical_match tests succeeded!\n");
     }
 
 
